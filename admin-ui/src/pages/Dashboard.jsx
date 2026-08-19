@@ -166,7 +166,7 @@ const Dashboard = () => {
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                                 {imgSrc ? (
                                                     <img src={imgSrc} alt={p.name}
-                                                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }}
+                                                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '6px', flexShrink: 0 }} loading="lazy" decoding="async"
                                                         onError={e => { e.target.style.display = 'none'; }}
                                                     />
                                                 ) : (

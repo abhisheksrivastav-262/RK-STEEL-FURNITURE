@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate, useLocation } from 'react-router-dom';
 import api from './api';
 import './admin.css';
 import { LayoutDashboard, ShoppingBag, FolderTree, Image as ImageIcon, Settings, Building2, Phone, Truck, LogOut, Menu, ExternalLink } from 'lucide-react';
 
 // Pages
-import Dashboard from './pages/Dashboard';
-import Products from './pages/Products';
-import ProductEditor from './pages/ProductEditor';
-import Media from './pages/Media';
-import Sections from './pages/Sections';
-import BusinessSettings from './pages/BusinessSettings';
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Products = React.lazy(() => import('./pages/Products'));
+const ProductEditor = React.lazy(() => import('./pages/ProductEditor'));
+const Media = React.lazy(() => import('./pages/Media'));
+const Sections = React.lazy(() => import('./pages/Sections'));
+const BusinessSettings = React.lazy(() => import('./pages/BusinessSettings'));
 
 const Login = ({ setAuth }) => {
     const [email, setEmail] = useState('');
@@ -190,24 +190,26 @@ function App() {
 
     return (
         <Router>
-            <Routes>
-                <Route path="/admin/login" element={<Login setAuth={setIsAuthenticated} />} />
-                <Route path="/admin/*" element={
-                    isAuthenticated ? (
-                        <Layout>
-                            <Routes>
-                                <Route path="/" element={<Dashboard />} />
-                                <Route path="/products" element={<Products />} />
-                                <Route path="/products/new" element={<ProductEditor />} />
-                                <Route path="/products/edit/:id" element={<ProductEditor />} />
-                                <Route path="/media" element={<Media />} />
-                                <Route path="/sections" element={<Sections />} />
-                                <Route path="/settings" element={<BusinessSettings />} />
-                            </Routes>
-                        </Layout>
-                    ) : <Navigate to="/admin/login" />
-                } />
-            </Routes>
+            <Suspense fallback={<div style={{padding: '2rem', textAlign: 'center'}}>Loading...</div>}>
+                <Routes>
+                    <Route path="/admin/login" element={<Login setAuth={setIsAuthenticated} />} />
+                    <Route path="/admin/*" element={
+                        isAuthenticated ? (
+                            <Layout>
+                                <Routes>
+                                    <Route path="/" element={<Dashboard />} />
+                                    <Route path="/products" element={<Products />} />
+                                    <Route path="/products/new" element={<ProductEditor />} />
+                                    <Route path="/products/edit/:id" element={<ProductEditor />} />
+                                    <Route path="/media" element={<Media />} />
+                                    <Route path="/sections" element={<Sections />} />
+                                    <Route path="/settings" element={<BusinessSettings />} />
+                                </Routes>
+                            </Layout>
+                        ) : <Navigate to="/admin/login" />
+                    } />
+                </Routes>
+            </Suspense>
         </Router>
     );
 }

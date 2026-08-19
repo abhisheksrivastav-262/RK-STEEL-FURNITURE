@@ -1,4 +1,5 @@
 const express = require('express');
+const compression = require('compression');
 const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
@@ -11,6 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // Middleware
+app.use(compression());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,8 +23,8 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Static Folders
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1y' }));
+app.use('/admin', express.static(path.join(__dirname, 'public', 'admin'), { maxAge: '1y' }));
 
 // Direct imports for bundler analysis
 const adminRoutes = require('./routes/admin');

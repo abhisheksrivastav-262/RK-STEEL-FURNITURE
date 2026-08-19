@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Custom CSS -->
+    <link rel="preload" href="/css/styles.css" as="style">
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
@@ -53,7 +54,7 @@
     </header>
 
     <!-- Hero Section -->
-    <section id="home" class="hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1920&auto=format&fit=crop');">
+    <section id="home" class="hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1080&auto=format&fit=crop');">
         <div class="container hero-content">
             <h1 class="fade-in-up"><%= settings.businessName %></h1>
             <h2 class="fade-in-up delay-1">STRONG • STYLISH • DURABLE</h2>
@@ -119,7 +120,7 @@
                 <% products.forEach(product => { %>
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/assets/' + product.image %>" alt="<%= product.name %>">
+                        <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/assets/' + product.image %>" alt="<%= product.name %>" loading="lazy" decoding="async">
                         <% if (product.featured) { %><span class="badge badge-gold">Featured</span><% } %>
                     </div>
                     <div class="product-info">
@@ -163,7 +164,7 @@
         <div class="container">
             <div class="showroom-grid">
                 <div class="showroom-image">
-                    <img src="/assets/<%= sections.showroom.image || 'b.png' %>" alt="<%= settings.businessName %> Showroom" style="object-fit: contain;">
+                    <img src="/assets/<%= sections.showroom.image || 'b.png' %>" alt="<%= settings.businessName %> Showroom" style="object-fit: contain;" loading="lazy" decoding="async">
                 </div>
                 <div class="showroom-content">
                     <h2><%= sections.showroom.heading || 'VISIT OUR SHOWROOM' %></h2>
