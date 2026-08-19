@@ -5,8 +5,22 @@ const db = require('../models');
 router.get('/', async (req, res) => {
     try {
         const settingsRaw = await db.Settings.findAll();
-        const settings = {};
-        settingsRaw.forEach(s => settings[s.key] = s.value);
+        const settings = {
+            businessName: 'RK STEEL FURNITURE',
+            tagline1: 'Strong • Stylish • Durable',
+            tagline2: 'Better Furniture, Better Life',
+            phone: '+91 9334940647',
+            whatsapp: '+91 9334940647',
+            location: 'Assam, Lanka',
+            deliveryRadius: '30 KM',
+            freeDelivery: 'true',
+            logo: 'logo.png'
+        };
+        settingsRaw.forEach(s => {
+            if (s.key && s.value !== undefined && s.value !== null) {
+                settings[s.key] = s.value;
+            }
+        });
 
         const products = await db.Product.findAll({
             where: { status: 'published' },

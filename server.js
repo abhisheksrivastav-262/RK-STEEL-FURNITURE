@@ -28,6 +28,7 @@ app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
 const adminRoutes = require('./routes/admin');
 const publicRoutes = require('./routes/public');
 const db = require('./models');
+const autoSeed = require('./autoseed');
 
 // Helper to seed /tmp DB on Vercel if needed
 let initialized = false;
@@ -45,6 +46,7 @@ const ensureDbInit = async () => {
         }
     }
     await db.sequelize.sync({ force: false });
+    await autoSeed(db);
     initialized = true;
 };
 
