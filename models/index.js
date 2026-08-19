@@ -1,9 +1,14 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
 
+const dbPath = process.env.VERCEL
+  ? '/tmp/database.sqlite'
+  : path.join(__dirname, '..', 'database.sqlite');
+
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: path.join(__dirname, '..', 'database.sqlite'),
+  dialectModule: require('sqlite3'),
+  storage: dbPath,
   logging: false
 });
 

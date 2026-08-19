@@ -1,20 +1,21 @@
 {
   "version": 2,
-  "name": "rk-steel-furniture",
-  "builds": [
+  "rewrites": [
     {
-      "src": "server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/admin/(.*)",
-      "dest": "server.js"
+      "source": "/api/admin/(.*)",
+      "destination": "/server.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "server.js"
+      "source": "/admin/(.*)",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/server.js"
     }
   ]
 }

@@ -4,3 +4,5 @@ database.sqlite
 admin-ui/node_modules/
 admin-ui/dist/
 .DS_Store
+.vercel
+.env*
