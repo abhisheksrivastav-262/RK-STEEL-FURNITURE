@@ -13,7 +13,7 @@ module.exports = async function autoSeed(db) {
         // 1. Create Admin User
         const hashedPassword = await bcrypt.hash('admin123', 10);
         await db.User.create({
-            email: 'admin@rksteelfurniture.com',
+            email: 'jahirul991133@gmail.com',
             password: hashedPassword
         });
 
