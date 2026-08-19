@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const product = document.getElementById('product').value;
             const message = document.getElementById('message').value;
             
-            const whatsappNumber = '919334940647';
+            const whatsappNumber = '919394940647';
             
             let whatsappMessage = `Hello RK Steel Furniture,%0A%0AI would like to enquire about:%0A%0A*Name:* ${name}%0A*Phone:* ${phone}%0A*Product:* ${product}`;
             
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const message = `Hello RK Steel Furniture,\n\nI am interested in this product:\n\nProduct: ${name}\nPrice: ${price}\n\nDetails:\n${desc}\n\nPlease share more details, availability and final price.\n\nThank you.`;
             
-            const url = `https://wa.me/919334940647?text=${encodeURIComponent(message)}`;
+            const url = `https://wa.me/919394940647?text=${encodeURIComponent(message)}`;
             window.open(url, '_blank');
         });
     });
