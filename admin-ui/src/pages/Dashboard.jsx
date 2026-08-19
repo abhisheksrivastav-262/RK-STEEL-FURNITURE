@@ -52,7 +52,8 @@ const Dashboard = () => {
     useEffect(() => { loadDashboard(); }, [loadDashboard]);
 
     const getImage = (p) => {
-        if (p.image) return `/assets/${p.image}`;
+        if (p.imageBase64) return '/api/image/product/' + p.id;
+        if (p.image) return p.image.startsWith('http') ? p.image : `/assets/${p.image}`;
         if (p.images) { try { return `/assets/${JSON.parse(p.images)[0]}`; } catch { return null; } }
         return null;
     };

@@ -48,6 +48,26 @@ const ensureDbInit = async () => {
         }
     }
     await db.sequelize.sync({ force: false });
+    
+    // Auto-migrate to add missing columns
+    try {
+        const qi = db.sequelize.getQueryInterface();
+        const cols = await qi.describeTable('Products');
+        const migrations = [
+            { col: 'stock', sql: 'ALTER TABLE "Products" ADD COLUMN "stock" INTEGER DEFAULT 0' },
+            { col: 'specs',  sql: 'ALTER TABLE "Products" ADD COLUMN "specs" TEXT' },
+            { col: 'imageBase64',  sql: 'ALTER TABLE "Products" ADD COLUMN "imageBase64" TEXT' },
+        ];
+        for (const m of migrations) {
+            if (!cols[m.col]) {
+                await db.sequelize.query(m.sql);
+                console.log('Migration: added column Products.' + m.col);
+            }
+        }
+    } catch (migErr) {
+        console.error('Migration warning (non-fatal):', migErr.message);
+    }
+    
     await autoSeed(db);
     initialized = true;
 };
@@ -81,22 +101,6 @@ app.use((err, req, res, next) => {
 if (!process.env.VERCEL) {
     db.sequelize.sync({ force: false }).then(async () => {
         console.log('Database synced successfully.');
-        const qi = db.sequelize.getQueryInterface();
-        try {
-            const cols = await qi.describeTable('Products');
-            const migrations = [
-                { col: 'stock', sql: 'ALTER TABLE "Products" ADD COLUMN "stock" INTEGER DEFAULT 0' },
-                { col: 'specs',  sql: 'ALTER TABLE "Products" ADD COLUMN "specs" TEXT' },
-            ];
-            for (const m of migrations) {
-                if (!cols[m.col]) {
-                    await db.sequelize.query(m.sql);
-                    console.log(`Migration: added column Products.${m.col}`);
-                }
-            }
-        } catch (migErr) {
-            console.error('Migration warning (non-fatal):', migErr.message);
-        }
 
         app.listen(PORT, () => {
             console.log(`Server running on http://localhost:${PORT}`);

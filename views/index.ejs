@@ -120,7 +120,7 @@
                 <% products.forEach(product => { %>
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/assets/' + product.image %>" alt="<%= product.name %>" loading="lazy" decoding="async">
+                        <img src="<%= product.imageBase64 ? '/image/product/' + product.id : (product.image && product.image.startsWith('http') ? product.image : '/assets/' + product.image) %>" alt="<%= product.name %>" loading="lazy" decoding="async">
                         <% if (product.featured) { %><span class="badge badge-gold">Featured</span><% } %>
                     </div>
                     <div class="product-info">

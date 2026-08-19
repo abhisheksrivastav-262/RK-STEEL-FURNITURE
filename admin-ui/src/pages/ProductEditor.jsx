@@ -95,7 +95,8 @@ const ProductEditor = () => {
                     specs,
                     existingImage: p.image || '',
                 });
-                if (p.image) setImagePreview(p.image.startsWith('http') ? p.image : `/assets/${p.image}`);
+                if (p.imageBase64) setImagePreview('/api/image/product/' + p.id);
+                else if (p.image) setImagePreview(p.image.startsWith('http') ? p.image : `/assets/${p.image}`);
             }
             setLoading(false);
         }).catch(() => setLoading(false));

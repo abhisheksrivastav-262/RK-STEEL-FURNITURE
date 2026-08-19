@@ -56,4 +56,29 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/image/product/:id', async (req, res) => {
+    try {
+        const product = await db.Product.findByPk(req.params.id);
+        if (!product || !product.imageBase64) {
+            return res.status(404).send('Image not found');
+        }
+        
+        // imageBase64 format: data:image/png;base64,iVBORw0KGgo...
+        const matches = product.imageBase64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (!matches || matches.length !== 3) {
+            return res.status(400).send('Invalid image data');
+        }
+        
+        const mimeType = matches[1];
+        const buffer = Buffer.from(matches[2], 'base64');
+        
+        res.setHeader('Content-Type', mimeType);
+        res.setHeader('Cache-Control', 'public, max-age=31536000');
+        res.send(buffer);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+});
+
 module.exports = router;

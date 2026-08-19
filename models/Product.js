@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
     sku: { type: DataTypes.STRING },
     stock: { type: DataTypes.INTEGER, defaultValue: 0 },
     image: { type: DataTypes.STRING }, // Main image URL/filename
+    imageBase64: { type: DataTypes.TEXT }, // Fallback for Vercel without Blob
     additionalImages: { type: DataTypes.TEXT }, // JSON array string
     specs: { type: DataTypes.TEXT },   // JSON array of { key, value } objects
     featured: { type: DataTypes.BOOLEAN, defaultValue: false },

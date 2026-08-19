@@ -44,9 +44,20 @@ const processImageUpload = async (reqFile) => {
         const ext = path.extname(reqFile.originalname).toLowerCase();
         const filename = 'product_' + Date.now() + ext;
         const blob = await put(filename, reqFile.buffer, { access: 'public' });
-        return blob.url; // Returns full HTTPS URL
+        return { image: blob.url }; // Returns object
     } else {
-        return reqFile.filename; // Returns local filename
+        let imageBase64 = null;
+        if (process.env.VERCEL) {
+            try {
+                const fs = require('fs');
+                const fileData = fs.readFileSync(reqFile.path);
+                imageBase64 = `data:${reqFile.mimetype};base64,${fileData.toString('base64')}`;
+                fs.unlinkSync(reqFile.path); // Clean up /tmp
+            } catch (e) {
+                console.error("Base64 error:", e);
+            }
+        }
+        return { image: reqFile.filename, imageBase64 };
     }
 };
 
@@ -156,7 +167,11 @@ router.post('/products/with-image', auth, upload.single('productImage'), async (
         }
         // Set image if file was uploaded
         if (req.file) {
-            fields.image = await processImageUpload(req.file);
+            const uploaded = await processImageUpload(req.file);
+            if (uploaded) {
+                fields.image = uploaded.image;
+                if (uploaded.imageBase64) fields.imageBase64 = uploaded.imageBase64;
+            }
         }
         const product = await db.Product.create(fields);
         res.json(product);
@@ -175,7 +190,11 @@ router.put('/products/:id/with-image', auth, upload.single('productImage'), asyn
             try { fields.specs = JSON.stringify(JSON.parse(fields.specs)); } catch { fields.specs = null; }
         }
         if (req.file) {
-            fields.image = await processImageUpload(req.file);
+            const uploaded = await processImageUpload(req.file);
+            if (uploaded) {
+                fields.image = uploaded.image;
+                if (uploaded.imageBase64) fields.imageBase64 = uploaded.imageBase64;
+            }
         }
         await db.Product.update(fields, { where: { id: req.params.id } });
         const updated = await db.Product.findByPk(req.params.id);
@@ -227,7 +246,8 @@ router.get('/media', auth, async (req, res) => {
 });
 router.post('/media', auth, upload.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-    const mediaPath = process.env.BLOB_READ_WRITE_TOKEN ? (await processImageUpload(req.file)) : `/assets/${req.file.filename}`;
+    const uploaded = await processImageUpload(req.file);
+    const mediaPath = uploaded && uploaded.image.startsWith('http') ? uploaded.image : `/assets/${req.file.filename}`;
     const media = await db.Media.create({
         filename: process.env.BLOB_READ_WRITE_TOKEN ? req.file.originalname : req.file.filename,
         path: mediaPath,
