@@ -8,14 +8,19 @@ const path = require('path');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rk_steel_super_secret_key_123';
 
+const { put } = require('@vercel/blob');
+
 // Multer setup for image uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => { cb(null, 'public/assets'); },
-    filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname).toLowerCase();
-        cb(null, 'product_' + Date.now() + ext);
-    }
-});
+const storage = process.env.BLOB_READ_WRITE_TOKEN 
+    ? multer.memoryStorage() 
+    : multer.diskStorage({
+        destination: (req, file, cb) => { cb(null, 'public/assets'); },
+        filename: (req, file, cb) => {
+            const ext = path.extname(file.originalname).toLowerCase();
+            cb(null, 'product_' + Date.now() + ext);
+        }
+    });
+
 const upload = multer({
     storage,
     fileFilter: (req, file, cb) => {
@@ -25,6 +30,19 @@ const upload = multer({
     },
     limits: { fileSize: 10 * 1024 * 1024 } // 10MB
 });
+
+// Helper to handle upload to Blob or return local filename
+const processImageUpload = async (reqFile) => {
+    if (!reqFile) return null;
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+        const ext = path.extname(reqFile.originalname).toLowerCase();
+        const filename = 'product_' + Date.now() + ext;
+        const blob = await put(filename, reqFile.buffer, { access: 'public' });
+        return blob.url; // Returns full HTTPS URL
+    } else {
+        return reqFile.filename; // Returns local filename
+    }
+};
 
 // Auth Middleware
 const auth = (req, res, next) => {
@@ -132,7 +150,7 @@ router.post('/products/with-image', auth, upload.single('productImage'), async (
         }
         // Set image if file was uploaded
         if (req.file) {
-            fields.image = req.file.filename;
+            fields.image = await processImageUpload(req.file);
         }
         const product = await db.Product.create(fields);
         res.json(product);
@@ -151,7 +169,7 @@ router.put('/products/:id/with-image', auth, upload.single('productImage'), asyn
             try { fields.specs = JSON.stringify(JSON.parse(fields.specs)); } catch { fields.specs = null; }
         }
         if (req.file) {
-            fields.image = req.file.filename;
+            fields.image = await processImageUpload(req.file);
         }
         await db.Product.update(fields, { where: { id: req.params.id } });
         const updated = await db.Product.findByPk(req.params.id);
@@ -203,9 +221,10 @@ router.get('/media', auth, async (req, res) => {
 });
 router.post('/media', auth, upload.single('file'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const mediaPath = process.env.BLOB_READ_WRITE_TOKEN ? (await processImageUpload(req.file)) : `/assets/${req.file.filename}`;
     const media = await db.Media.create({
-        filename: req.file.filename,
-        path: `/assets/${req.file.filename}`,
+        filename: process.env.BLOB_READ_WRITE_TOKEN ? req.file.originalname : req.file.filename,
+        path: mediaPath,
         mimetype: req.file.mimetype,
         size: req.file.size
     });

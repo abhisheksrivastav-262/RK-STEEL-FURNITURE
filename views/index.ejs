@@ -119,7 +119,7 @@
                 <% products.forEach(product => { %>
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="/assets/<%= product.image %>" alt="<%= product.name %>">
+                        <img src="<%= product.image && product.image.startsWith('http') ? product.image : '/assets/' + product.image %>" alt="<%= product.name %>">
                         <% if (product.featured) { %><span class="badge badge-gold">Featured</span><% } %>
                     </div>
                     <div class="product-info">
