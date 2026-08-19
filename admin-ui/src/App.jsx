@@ -23,6 +23,7 @@ const Login = ({ setAuth }) => {
         try {
             const res = await api.post('/login', { email, password });
             if(res.data.success) {
+                localStorage.setItem('admin_token', res.data.token);
                 setAuth(true);
                 navigate('/admin');
             }
@@ -62,7 +63,8 @@ const Layout = ({ children }) => {
     const closeSidebar = () => setSidebarOpen(false);
 
     const handleLogout = () => {
-        api.post('/logout').then(() => {
+        api.post('/logout').finally(() => {
+            localStorage.removeItem('admin_token');
             window.location.href = '/admin/login';
         });
     };

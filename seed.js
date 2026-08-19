@@ -5,7 +5,7 @@ async function seed() {
   await db.sequelize.sync({ force: true }); // Reset DB
 
   // 1. Create Admin User
-  const hashedPassword = await bcrypt.hash('admin123', 10);
+  const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin123', 10);
   await db.User.bulkCreate([
     { email: 'jahirul991133@gmail.com', password: hashedPassword },
     { email: 'jahirul119933@gmail.com', password: hashedPassword },
@@ -17,8 +17,8 @@ async function seed() {
     { key: 'businessName', value: 'RK STEEL FURNITURE' },
     { key: 'tagline1', value: 'Strong • Stylish • Durable' },
     { key: 'tagline2', value: 'Better Furniture, Better Life' },
-    { key: 'phone', value: '+91 9394940647' },
-    { key: 'whatsapp', value: '+91 9394940647' },
+    { key: 'phone', value: '+91 93949 40647' },
+    { key: 'whatsapp', value: '+91 93949 40647' },
     { key: 'location', value: 'Assam, Lanka' },
     { key: 'deliveryRadius', value: '30 KM' },
     { key: 'freeDelivery', value: 'true' },

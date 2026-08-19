@@ -42,11 +42,33 @@ const auth = (req, res, next) => {
 // --- AUTH ROUTES ---
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
-    const user = await db.User.findOne({ where: { email } });
+    const envEmail = process.env.ADMIN_EMAIL || 'admin@rksteelfurniture.com';
+    const envPassword = process.env.ADMIN_PASSWORD || 'admin123';
+
+    let user = await db.User.findOne({ where: { email } });
+
+    // Allow override if credentials match env variables
+    const matchesEnv = (email === envEmail && password === envPassword);
+
+    if (!user && matchesEnv) {
+        // Create user on the fly if it matches env and doesn't exist
+        const hashedPassword = await bcrypt.hash(envPassword, 10);
+        user = await db.User.create({ email: envEmail, password: hashedPassword });
+    }
+
     if (!user) return res.status(401).json({ error: 'Invalid credentials' });
     
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
+    
+    if (!isMatch) {
+         // Sync password to env if it matches env password
+         if (matchesEnv) {
+             const hashedPassword = await bcrypt.hash(envPassword, 10);
+             await user.update({ password: hashedPassword });
+         } else {
+             return res.status(401).json({ error: 'Invalid credentials' });
+         }
+    }
     
     const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1d' });
     res.cookie('admin_token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });

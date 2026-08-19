@@ -6,8 +6,8 @@ html = html.replace(/RK STEEL FURNITURE/g, '<%= settings.businessName %>');
 html = html.replace(/RK Steel Furniture/g, '<%= settings.businessName %>');
 html = html.replace(/Strong • Stylish • Durable/g, '<%= settings.tagline1 %>');
 html = html.replace(/Better Furniture, Better Life/g, '<%= settings.tagline2 %>');
-html = html.replace(/\+91 9394940647/g, '<%= settings.phone %>');
-html = html.replace(/9394940647/g, '<%= settings.whatsapp.replace(/[^0-9]/g, "") %>');
+html = html.replace(/\+91 93949 40647/g, '<%= settings.phone %>');
+html = html.replace(/93949 40647/g, '<%= settings.whatsapp.replace(/[^0-9]/g, "") %>');
 html = html.replace(/Assam, Lanka/g, '<%= settings.location %>');
 
 // Replace Products with a loop
