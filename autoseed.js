@@ -12,10 +12,11 @@ module.exports = async function autoSeed(db) {
 
         // 1. Create Admin User
         const hashedPassword = await bcrypt.hash('admin123', 10);
-        await db.User.create({
-            email: 'jahirul991133@gmail.com',
-            password: hashedPassword
-        });
+        await db.User.bulkCreate([
+            { email: 'jahirul991133@gmail.com', password: hashedPassword },
+            { email: 'jahirul119933@gmail.com', password: hashedPassword },
+            { email: 'admin@rksteelfurniture.com', password: hashedPassword }
+        ]);
 
         // 2. Create Global Settings
         const settings = [
