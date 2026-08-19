@@ -10,11 +10,17 @@ const JWT_SECRET = process.env.JWT_SECRET || 'rk_steel_super_secret_key_123';
 
 const { put } = require('@vercel/blob');
 
+const os = require('os');
+
 // Multer setup for image uploads
 const storage = process.env.BLOB_READ_WRITE_TOKEN 
     ? multer.memoryStorage() 
     : multer.diskStorage({
-        destination: (req, file, cb) => { cb(null, 'public/assets'); },
+        destination: (req, file, cb) => { 
+            // If on Vercel but no Blob token, use /tmp to avoid EROFS crash (temporary workaround)
+            const dest = process.env.VERCEL ? os.tmpdir() : 'public/assets';
+            cb(null, dest); 
+        },
         filename: (req, file, cb) => {
             const ext = path.extname(file.originalname).toLowerCase();
             cb(null, 'product_' + Date.now() + ext);
