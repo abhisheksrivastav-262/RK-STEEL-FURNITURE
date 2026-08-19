@@ -28,7 +28,7 @@ app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
 let initialized = false;
 const ensureDbInit = async () => {
     if (initialized) return;
-    const db = require('./models');
+    const db = require(path.join(__dirname, 'models'));
     if (process.env.VERCEL) {
         const tmpDb = '/tmp/database.sqlite';
         const sourceDb = path.join(__dirname, 'database.sqlite');
@@ -45,19 +45,20 @@ const ensureDbInit = async () => {
 };
 
 // Safe DB / route helper
-const handleRoute = async (routePath, req, res, next) => {
+const handleRoute = async (relPath, req, res, next) => {
     try {
         await ensureDbInit();
-        require(routePath)(req, res, next);
+        const routeModule = require(path.join(__dirname, relPath));
+        routeModule(req, res, next);
     } catch (err) {
-        console.error(`Route Error (${routePath}):`, err);
+        console.error(`Route Error (${relPath}):`, err);
         next(err);
     }
 };
 
 // Routes
-app.use('/api/admin', (req, res, next) => handleRoute('./routes/admin', req, res, next));
-app.use('/', (req, res, next) => handleRoute('./routes/public', req, res, next));
+app.use('/api/admin', (req, res, next) => handleRoute('routes/admin', req, res, next));
+app.use('/', (req, res, next) => handleRoute('routes/public', req, res, next));
 
 // Catch-all for React Admin Panel
 app.get(/^\/admin(?:\/(.*))?$/, (req, res) => {
@@ -72,7 +73,7 @@ app.use((err, req, res, next) => {
 
 // Local Development server listener
 if (!process.env.VERCEL) {
-    const db = require('./models');
+    const db = require(path.join(__dirname, 'models'));
     db.sequelize.sync({ force: false }).then(async () => {
         console.log('Database synced successfully.');
         const qi = db.sequelize.getQueryInterface();
